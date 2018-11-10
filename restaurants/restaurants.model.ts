@@ -1,7 +1,4 @@
 import * as mongoose from 'mongoose'
-import { validateCPF} from '../common/validators'
-import * as bcrypt from 'bcrypt'
-import { environment } from '../common/environment'
 
 export interface MenuItem extends mongoose.Document{
     name: string,
