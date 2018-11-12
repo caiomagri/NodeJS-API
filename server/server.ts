@@ -32,7 +32,7 @@ export class Server {
                     router.applyRoutes(this.application)
                 }
                 
-                this.application.listen(environment.sever.port, ()=>{
+                this.application.listen(environment.server.port, ()=>{
                    resolve(this.application)
                 })
 
@@ -46,5 +46,10 @@ export class Server {
     bootstrap(routers: Router[] = []): Promise<Server> {
         return this.initializeDb().then(
             this.initRoutes(routers).then(() => this))
+    }
+    shutdown(){
+        return mongoose.disconnect().then(() => {
+            this.application.close()
+        })
     }
 }
