@@ -6,6 +6,7 @@ import * as mongoose from 'mongoose'
 import {mergePatchBodyParser} from './merge-patch.parse'
 import { handleError } from './error.handler'
 import { tokenParser} from '../security/token.parser'
+import { logger } from '../common/logger';
 
 export class Server {
     application: restify.Server
@@ -22,7 +23,8 @@ export class Server {
             try {
                 const options: restify.ServerOptions  = {
                     name: 'meat-api',
-                    version: '1.0.0'
+                    version: '1.0.0',
+                    log: logger
                 }
                 if (environment.security.enableHTTPS) {
                     options.certificate = fs.readFileSync(environment.security.certificate),
@@ -30,6 +32,10 @@ export class Server {
                 }
                 this.application = restify.createServer(options)
                 
+                this.application.pre(restify.plugins.requestLogger({
+                    log:logger
+                }))
+
                 this.application.use(restify.plugins.queryParser())
                 this.application.use(restify.plugins.bodyParser())
                 this.application.use(mergePatchBodyParser)
@@ -45,6 +51,16 @@ export class Server {
                 })
 
                 this.application.on('restifyError', handleError)
+                // this.application.on('after', restify.plugins.auditLogger({
+                //     log: logger,
+                //     event: 'after',
+                //     body: true,
+                //     server: this.application
+                // }))
+
+                // this.application.on('audit', data=> {
+
+                // })
                 
             } catch (error) {
                 reject(error)
